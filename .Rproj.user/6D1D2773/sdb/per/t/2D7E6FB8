@@ -1,0 +1,20 @@
+{
+    "collab_server" : "",
+    "contents" : "library(shiny)\n\nif (interactive()) {\n  \n  ui <- fluidPage(\n    sidebarLayout(\n      sidebarPanel(\n        fileInput(\"file1\", \"Choose CSV File\",\n                  accept = c(\n                    \"text/csv\",\n                    \"text/comma-separated-values,text/plain\",\n                    \".csv\")\n        ),\n        tags$hr(),\n        checkboxInput(\"header\", \"Header\", TRUE)\n      ),\n      mainPanel(\n        tableOutput(\"contents\")\n      )\n    )\n  )\n  \n  server <- function(input, output) {\n    output$contents <- renderTable({\n      # input$file1 will be NULL initially. After the user selects\n      # and uploads a file, it will be a data frame with 'name',\n      # 'size', 'type', and 'datapath' columns. The 'datapath'\n      # column will contain the local filenames where the data can\n      # be found.\n      inFile <- input$file1\n      \n      if (is.null(inFile))\n        return(NULL)\n      \n      read.csv(inFile$datapath, header = input$header)\n    })\n  }\n  \n  shinyApp(ui, server)\n}\n",
+    "created" : 1494357865117.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "3555036016",
+    "id" : "2D7E6FB8",
+    "lastKnownWriteTime" : 1494357799,
+    "last_content_update" : 1494357799,
+    "path" : "C:/gcb/Shinygram/app.R",
+    "project_path" : "app.R",
+    "properties" : {
+    },
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}
