@@ -12,7 +12,7 @@ if (interactive()) {
                     ".csv")
         ),
         tags$hr(),
-        checkboxInput("header", "Gooplops", TRUE)
+        checkboxInput("header", "Poohplops", TRUE)
       ),
       mainPanel(
         tableOutput("contents")
