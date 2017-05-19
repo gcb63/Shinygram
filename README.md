@@ -1,1 +1,1 @@
-# Shinygram -- now with exploding cows!
+# Shinygram -- outshined
