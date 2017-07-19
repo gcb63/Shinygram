@@ -7,27 +7,41 @@ ui <- fluidPage(
   
   titlePanel("Semivariogram Analysis"),
   
-  sidebarLayout(
-    sidebarPanel(
-      fileInput('file', 'CSV file to upload',
-                accept = c(
-                  'text/csv',
-                  'text/comma-separated-values',
-                  '.csv'
-                )
-      ),
-      selectInput("xvar", "X coordinate: ", choices =NULL), 
-      selectInput("yvar", "Y coordinate: ", choices =NULL),
-      selectInput("pvar", "Property: ", choices=NULL),
-      numericInput("lagsp","Lag spacing: ", value=NULL),
-      numericInput("maxlag","Maximum lag: ", value=NULL)
+  fluidRow(
+    column(4, 
+        h4("Input Data"),
+        fileInput('file', 'CSV file to upload',
+            accept = c('text/csv','text/comma-separated-values','.csv')
+        ),
+        selectInput("xvar", "X coordinate: ", choices =NULL), 
+        selectInput("yvar", "Y coordinate: ", choices =NULL),
+        selectInput("pvar", "Property: ", choices=NULL)
     ),
-    
-    mainPanel(
-      plotOutput("postmap"),
-      plotOutput("svg")
+    column(4,
+        h4("Empirical Semivariogram"),
+        numericInput("lagsp","Lag spacing: ", value=NULL),
+        numericInput("maxlag","Maximum lag: ", value=NULL),
+        selectInput("trend","Remove trend of order: ",choices=c(0,1,2))
+    ),
+    column(4,
+        h4("Semivariogram Model"),
+        selectInput("modform","Model Form: ",
+                    choices=c("[NONE]","Exponential","Spherical","Gaussian")),
+        numericInput("nugget","Nugget: ",value=0),
+        numericInput("range","Range: ",value=0),
+        numericInput("sill","Sill: ",value=0)
     )
+  ),
+    
+    
+  hr(),
+    
+  fluidRow(
+      column(5,plotOutput("postmap")),
+      column(5,plotOutput("svg"),offset=2)
   )
+    
+        
 )
 
 server <- function(input, output, session) { # added session for updateSelectInput
@@ -92,12 +106,30 @@ server <- function(input, output, session) { # added session for updateSelectInp
       f <- subset(f, select = c(input$xvar,input$yvar,input$pvar))
       f <- na.omit(f)
       coordinates(f) <- c(input$xvar,input$yvar)
-      form <- formula(paste(input$pvar,"~1",sep=""))
+      if (input$trend=="0") {
+        form <- formula(paste(input$pvar,"~1",sep=""))
+      } else if (input$trend=="1") {
+        form <- formula(paste(input$pvar,"~",input$xvar,"+",input$yvar,sep=""))
+      } else {
+        form <- formula(paste(input$pvar, "~",
+                              input$xvar, "+", input$yvar, "+",
+                              "I(", input$xvar, "^2) + I(",input$yvar,"^2) +",
+                              "I(", input$xvar, "*", input$yvar,")",
+                              sep=""))
+      }
       prop.vg <- variogram(form,f,width=input$lagsp,cutoff=input$maxlag)
       with(prop.vg,
            plot(gamma~dist,pch=16,col="blue",cex=1.3,ylim=c(0,1.2*max(prop.vg$gamma)),
                 xlab="Lag Distance",ylab="Semivariance",cex.lab=1.3,
                 main=paste("Omnidirectional Semivariogram of",input$pvar),cex.main=1.3))
+      if (input$trend=="0") {
+        legtext <- "No trend removed"
+      } else if (input$trend=="1") {
+        legtext <- "First-order trend removed"
+      } else {
+        legtext <- "Second-order trend removed"
+      }
+      legend("bottomright",legtext)
     }
   })
   
