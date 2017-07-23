@@ -8,7 +8,7 @@ ui <- fluidPage(
   titlePanel("Semivariogram Analysis"),
   
   fluidRow(
-    column(4, 
+    column(3, 
         h4("Input Data"),
         fileInput('file', 'CSV file to upload',
             accept = c('text/csv','text/comma-separated-values','.csv')
@@ -17,13 +17,16 @@ ui <- fluidPage(
         selectInput("yvar", "Y coordinate: ", choices =NULL),
         selectInput("pvar", "Property: ", choices=NULL)
     ),
-    column(4,
+    column(6,
+        plotOutput("postmap"),
+        plotOutput("svg")
+    ),
+    column(3,
         h4("Empirical Semivariogram"),
         numericInput("lagsp","Lag spacing: ", value=NULL),
         numericInput("maxlag","Maximum lag: ", value=NULL),
-        selectInput("trend","Remove trend of order: ",choices=c(0,1,2))
-    ),
-    column(4,
+        selectInput("trend","Remove trend of order: ",choices=c(0,1,2)),
+        hr(),
         h4("Semivariogram Model"),
         selectInput("modform","Model Form: ",
                     choices=c("[NONE]","Exponential","Spherical","Gaussian")),
@@ -31,18 +34,9 @@ ui <- fluidPage(
         numericInput("range","Range: ",value=0),
         numericInput("sill","Sill: ",value=0)
     )
-  ),
-    
-    
-  hr(),
-    
-  fluidRow(
-      column(5,plotOutput("postmap")),
-      column(5,plotOutput("svg"),offset=2)
   )
-    
-        
 )
+ 
 
 server <- function(input, output, session) { # added session for updateSelectInput
   
