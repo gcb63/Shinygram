@@ -114,7 +114,7 @@ server <- function(input, output, session) { # added session for updateSelectInp
       prop.vg <- variogram(form,f,width=input$lagsp,cutoff=input$maxlag)
       with(prop.vg,
            plot(gamma~dist,pch=16,col="blue",cex=1.3,ylim=c(0,1.2*max(prop.vg$gamma)),
-                xlab="Lag Distance",ylab="Semivariance",cex.lab=1.3,
+                xlim=c(0,1.02*input$maxlag),xlab="Lag Distance",ylab="Semivariance",cex.lab=1.3,
                 main=paste("Omnidirectional Semivariogram of",input$pvar),cex.main=1.3))
       if (input$trend=="0") {
         legtext <- "No trend removed"
@@ -124,6 +124,20 @@ server <- function(input, output, session) { # added session for updateSelectInp
         legtext <- "Second-order trend removed"
       }
       legend("bottomright",legtext)
+      if ( input$modform!="[NONE]" &
+           !is.na(input$nugget) & input$nugget >= 0 &
+           !is.na(input$range) & input$range >= 0 &
+           !is.na(input$sill) & input$sill >= 0 &
+           (input$nugget + input$range + input$sill) > 0 ) {
+        if (input$modform=="Exponential") {
+          vgmod <- variogramLine(vgm(input$sill,"Exp",input$range/3,input$nugget),maxdist=1.02*input$maxlag)
+        } else if (input$modform=="Spherical") {
+          vgmod <- variogramLine(vgm(input$sill,"Sph",input$range,input$nugget),maxdist=1.02*input$maxlag)
+        } else if (input$modform=="Gaussian") {
+          vgmod <- variogramLine(vgm(input$sill,"Sph",input$range,input$nugget),maxdist=1.02*input$maxlag)
+        }
+        lines(gamma~dist,vgmod,col="red",lwd=2)
+      }
     }
   })
   
