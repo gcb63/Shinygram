@@ -134,7 +134,7 @@ server <- function(input, output, session) { # added session for updateSelectInp
         } else if (input$modform=="Spherical") {
           vgmod <- variogramLine(vgm(input$sill,"Sph",input$range,input$nugget),maxdist=1.02*input$maxlag)
         } else if (input$modform=="Gaussian") {
-          vgmod <- variogramLine(vgm(input$sill,"Sph",input$range,input$nugget),maxdist=1.02*input$maxlag)
+          vgmod <- variogramLine(vgm(input$sill,"Gau",input$range,input$nugget),maxdist=1.02*input$maxlag)
         }
         lines(gamma~dist,vgmod,col="red",lwd=2)
       }
